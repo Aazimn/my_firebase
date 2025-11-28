@@ -29,6 +29,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   Future<bool> adduser() async {
     try {
       var userid = "lumin$count";
+      // await _databaseReference.child("User").push().set({
       await _databaseReference.child("User/$userid").set({
         "name": nameController.text.trim(),
         "age": ageController.text.trim(),
@@ -39,6 +40,27 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     } catch (e) {
       print(e);
       return false;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> fetchusers() async {
+    try {
+      var snapshot = await _databaseReference.child("User").get();
+      if (snapshot.exists) {
+        Map data = snapshot.value as Map;
+        List<Map<String, dynamic>> users = [];
+        data.forEach((key, value) {
+          users.add({
+            "id": key,
+            "name": value["name"],
+            "age": value["age"],
+            "phone": value["phone"],
+          });
+        });
+        return users;
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -138,6 +160,35 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                     }
                   },
                   child: const Text("Save Details"),
+                ),
+              ),
+              Expanded(
+                child: FutureBuilder(
+                  future: fetchusers(),
+                  builder:
+                      (
+                        BuildContext context,
+                        AsyncSnapshot<List<Map<String, dynamic>>?> snapshot,
+                      ) {
+                        if (snapshot.hasData) {
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              var users = snapshot.data![index];
+                              return ListTile(
+                                title: Text("${users["name"]}"),
+                                subtitle: Text("${users["phone"]}"),
+                                trailing: Text("${users["age"]}"),
+                              );
+                            },
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(child: Text("${snapshot.error}"));
+                        } else {
+                          return Center(child: CircularProgressIndicator());
+                        }
+                      },
                 ),
               ),
             ],

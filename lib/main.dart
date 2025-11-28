@@ -4,12 +4,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_firebase/add_details.dart';
 import 'package:my_firebase/google_signin_service.dart';
 import 'package:my_firebase/log_in_screen.dart';
+import 'package:my_firebase/notification_service.dart';
 import 'package:my_firebase/sign_in_screen.dart';
 
 Future<void> main() async {
   await WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(const MyApp());
+  await NotificationService().registerPushNotificationHandler();
 }
 
 class MyApp extends StatelessWidget {
